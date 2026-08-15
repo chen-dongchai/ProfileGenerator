@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfileGenerator", "ProfileGenerator.csproj", "{4009C05C-A79A-44C4-B77F-664D3FB13EEA}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ProdileGeneratorSetup", "..\ProdileGeneratorSetup\ProdileGeneratorSetup.vdproj", "{974FCEE1-0F2C-F6F0-4295-B030D4F1C1EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Debug|x64.ActiveCfg = Debug|x64
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Debug|x64.Build.0 = Debug|x64
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Release|x64.ActiveCfg = Release|x64
+		{4009C05C-A79A-44C4-B77F-664D3FB13EEA}.Release|x64.Build.0 = Release|x64
+		{974FCEE1-0F2C-F6F0-4295-B030D4F1C1EB}.Debug|Any CPU.ActiveCfg = Debug
+		{974FCEE1-0F2C-F6F0-4295-B030D4F1C1EB}.Debug|x64.ActiveCfg = Debug
+		{974FCEE1-0F2C-F6F0-4295-B030D4F1C1EB}.Release|Any CPU.ActiveCfg = Release
+		{974FCEE1-0F2C-F6F0-4295-B030D4F1C1EB}.Release|x64.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {182CFBC2-6A8F-4483-B5FB-14DA885E69B2}
+	EndGlobalSection
+EndGlobal

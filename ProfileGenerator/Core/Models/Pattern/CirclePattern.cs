@@ -8,6 +8,7 @@ namespace ProfileGenerator.Core.Models.Pattern
     {
         public CirclePattern(double radius, string unit) : base(radius, unit)
         {
+            ShapeName = "CirclePattern";
         }
         public override Autodesk.Revit.DB.CurveLoop Generate(Autodesk.Revit.DB.XYZ center)
         {
@@ -16,6 +17,7 @@ namespace ProfileGenerator.Core.Models.Pattern
             Autodesk.Revit.DB.CurveLoop curveLoop = new Autodesk.Revit.DB.CurveLoop();
             curveLoop.Append(arc1);
             curveLoop.Append(arc2);
+            curveLoop.Flip(); //确保顺时针
             return curveLoop;
         }
     }

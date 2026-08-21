@@ -10,6 +10,7 @@ namespace ProfileGenerator.Core.Models.Pattern
         public DiamondPattern(double width, double height, string unit, double rotation) : base(width, height, unit)
         {
             Rotation = rotation;
+            ShapeName = "DiamondPattern";
         }
         public override CurveLoop Generate(XYZ center)
         {

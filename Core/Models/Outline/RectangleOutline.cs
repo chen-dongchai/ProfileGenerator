@@ -10,7 +10,7 @@ namespace ProfileGenerator.Core.Models.Outline
 
         public RectangleOutline(double width, double height, double cornerradius, string unit) : base(width, height, cornerradius, unit)
         {
-
+            ShapeName = "RectangleOutline";
         }
         public override CurveLoop Generate(XYZ center)
         {
@@ -74,7 +74,7 @@ namespace ProfileGenerator.Core.Models.Outline
                 curves.Add(d2a1);
                 rectangleresult = CurveLoop.Create(curves);
             }
-
+            rectangleresult.Flip();
             return rectangleresult;
         }
     }

@@ -11,6 +11,7 @@ namespace ProfileGenerator.Core.Models.Pattern
         public StarPattern(double inCircleRadius, double outCircleRadius, int starsCount, string starunit, double rotation) : base(inCircleRadius, outCircleRadius, starsCount, starunit)
         {
             Rotation = rotation;
+            ShapeName = "StarPattern";
         }
         public override CurveLoop Generate(XYZ center)
         {
@@ -44,6 +45,7 @@ namespace ProfileGenerator.Core.Models.Pattern
                 Transform rotatedtrans = Transform.CreateRotationAtPoint(XYZ.BasisZ, Rotation * (Math.PI / 180), center);
                 loop.Transform(rotatedtrans);
             }
+            loop.Flip();
             return loop;
         }
     }

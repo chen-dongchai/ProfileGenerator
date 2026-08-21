@@ -10,6 +10,7 @@ namespace ProfileGenerator.Core.Models.Pattern
         public RectanglePattern(double width, double height, double cornerradius, string unit, double rotatedangle) : base(width, height, cornerradius, unit)
         {
             RotatedAngle = rotatedangle;
+            ShapeName = "RectanglePattern";
         }
 
         public override CurveLoop Generate(XYZ center)

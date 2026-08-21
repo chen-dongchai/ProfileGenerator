@@ -126,6 +126,7 @@
             this.outlineTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.outlineTypeBox.FormattingEnabled = true;
             this.outlineTypeBox.Items.AddRange(new object[] {
+            "不指定",
             "矩形",
             "圆形"});
             this.outlineTypeBox.Location = new System.Drawing.Point(196, 63);
@@ -204,6 +205,7 @@
             this.patternTypeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.patternTypeBox.FormattingEnabled = true;
             this.patternTypeBox.Items.AddRange(new object[] {
+            "不指定",
             "矩形",
             "圆形",
             "菱形",
@@ -275,7 +277,8 @@
             this.arrangeBox.FormattingEnabled = true;
             this.arrangeBox.Items.AddRange(new object[] {
             "网格排列",
-            "交错排列"});
+            "交错排列",
+            "Voronoi"});
             this.arrangeBox.Location = new System.Drawing.Point(248, 59);
             this.arrangeBox.Name = "arrangeBox";
             this.arrangeBox.Size = new System.Drawing.Size(121, 26);

@@ -29,6 +29,9 @@ namespace ProfileGenerator
             patternUnitBox.SelectedIndex = 0;
             arrangeUnitBox.SelectedIndex = 0;
             height3DUnitBox.SelectedIndex = 0;
+            outlineTypeBox.SelectedIndex = 0;
+            patternTypeBox.SelectedIndex = 0;
+
         }
 
         private void arrangeBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -141,6 +144,37 @@ namespace ProfileGenerator
                 arrangePanel.Controls.Add(IsEvencheckbox);
                 arrangePanel.Controls.Add(Offsetlabel);
                 arrangePanel.Controls.Add(Offsetbox);
+                arrangePanel.BringToFront();
+                arrangePanel.Show();
+            }
+            else if (selectedOption == "Voronoi")
+            {
+                arrangePanel.Controls.Clear();
+                Label targetCountLabel = new Label();
+                targetCountLabel.Text = "目标数量";
+                targetCountLabel.Location = new System.Drawing.Point(50, 50);
+                System.Windows.Forms.TextBox targetCountBox = new System.Windows.Forms.TextBox();
+                targetCountBox.Name = "targetCount";
+                targetCountBox.Location = new System.Drawing.Point(150, 50);
+                Label gapLabel = new Label();
+                gapLabel.Text = "间距";
+                gapLabel.Location = new System.Drawing.Point(50, 100);
+                System.Windows.Forms.TextBox gapBox = new System.Windows.Forms.TextBox();
+                gapBox.Name = "gap";
+                gapBox.Location = new System.Drawing.Point(150, 100);
+                Label seedLabel = new Label();
+                seedLabel.Text = "seed";
+                seedLabel.Location = new System.Drawing.Point(50, 150);
+                System.Windows.Forms.TextBox seedBox = new System.Windows.Forms.TextBox();
+                seedBox.Name = "seed";
+                seedBox.Location = new System.Drawing.Point(50, 200);
+                seedBox.Width = 180;
+                arrangePanel.Controls.Add( targetCountLabel );
+                arrangePanel.Controls.Add(targetCountBox);
+                arrangePanel.Controls.Add(gapLabel);
+                arrangePanel.Controls.Add(gapBox);
+                arrangePanel.Controls.Add(seedLabel);
+                arrangePanel.Controls.Add(seedBox);
                 arrangePanel.BringToFront();
                 arrangePanel.Show();
             }
@@ -403,16 +437,19 @@ namespace ProfileGenerator
                 arrangeDef = GetUserChoosedArrange();   //接下来实现根据这三个定义生成 CurveArrArray 的逻辑，还有获取导出路径的逻辑
                 CurveArrArray curveArrArray = null;
                 //先生成点位，然后组装，
-                //生成点位方法需要先获得图案包围框
-                CurveLoop tmpPatternLoop = null;
-                tmpPatternLoop = patternstorage.Generate(new XYZ(0, 0, 0));
-                double xMaxLengthft = 0, yMaxLengthft = 0;
-                (xMaxLengthft, yMaxLengthft) = BoxPara.GetBox(tmpPatternLoop);
-                //之后需要根据外界环的ShapeDefinition获得Curveloop
-                CurveLoop outline = outlinestorage.Generate(new XYZ(0, 0, 0));
+                
                 //判断ArrangeDefinition的类型，调用不同的方法，若为GridArrange，则调用ArrangementEngine.GridArrangeSet获得点位
                 if (arrangeDef.ArrangeTypeName == "网格")
                 {
+                    //生成点位方法需要先获得图案包围框
+                    CurveLoop tmpPatternLoop = null;
+                    tmpPatternLoop = patternstorage.Generate(new XYZ(0, 0, 0));
+                    double xMaxLengthft = 0, yMaxLengthft = 0;
+                    (xMaxLengthft, yMaxLengthft) = BoxPara.GetBox(tmpPatternLoop);
+                    //之后需要根据外界环的ShapeDefinition获得Curveloop
+                    CurveLoop outline = outlinestorage.Generate(new XYZ(0, 0, 0));
+
+
                     GridArrange gridArrange = arrangeDef as GridArrange;
                     List<XYZ> points = NormalArrangementEngine.GridArrangeSet(xMaxLengthft, yMaxLengthft, outline, gridArrange);
                     //最后调用Assembler.Assemble获得CurveArrArray
@@ -420,12 +457,34 @@ namespace ProfileGenerator
                 }
                 else if (arrangeDef.ArrangeTypeName == "交错")
                 {
+
+                    //生成点位方法需要先获得图案包围框
+                    CurveLoop tmpPatternLoop = null;
+                    tmpPatternLoop = patternstorage.Generate(new XYZ(0, 0, 0));
+                    double xMaxLengthft = 0, yMaxLengthft = 0;
+                    (xMaxLengthft, yMaxLengthft) = BoxPara.GetBox(tmpPatternLoop);
+                    //之后需要根据外界环的ShapeDefinition获得Curveloop
+                    CurveLoop outline = outlinestorage.Generate(new XYZ(0, 0, 0));
+
+
+
                     StaggerArrange staggerArrange = arrangeDef as StaggerArrange;
                     List<XYZ> points = NormalArrangementEngine.StaggerArrangeSet(xMaxLengthft, yMaxLengthft, outline, staggerArrange);
                     curveArrArray = Assembler.Assemble(points, outlinestorage, patternstorage);
                 }
-                else if (arrangeDef.ArrangeTypeName == "泊松盘")
+                else if (arrangeDef.ArrangeTypeName == "Voronoi")
                 {
+                    VoronoiArrange voronoiArrange = arrangeDef as VoronoiArrange;
+                    CurveLoop curveLoop = new CurveLoop();
+                    curveLoop = Utils.OffsetWay.OutlineOffset(outlinestorage, voronoiArrange.gapFt);
+                    curveArrArray = VoronoiArrangementEngine.GenerateInnerLoops(curveLoop, voronoiArrange);
+                    CurveLoop originalOutline = new CurveLoop();
+                    originalOutline = outlinestorage.Generate(new XYZ(0, 0, 0));
+
+                    curveArrArray.Insert(Utils.LoopToArray.ConvertToCurveArray(originalOutline), 0);
+
+
+
 
                 }
                 return (curveArrArray, filePathBox.Text);   //别忘记此处确实异常处理
@@ -500,6 +559,10 @@ namespace ProfileGenerator
                     }
                 }
                 shapeDef = new Core.Models.Outline.CircleOutline(radius, outlineUnit);
+            }
+            else if(outlineTypeBox.SelectedItem?.ToString() == "不指定")
+            {
+                shapeDef = null;
             }
             else
             {
@@ -614,6 +677,10 @@ namespace ProfileGenerator
                 }
                 shapeDef = new StarPattern(inCircleRadius, outCircleRadius, starsCount, starUnit, rotation);
 
+            }
+            else if(patternTypeBox.SelectedItem?.ToString() == "不指定")
+            {
+                shapeDef = null;
             }
             else
             {
@@ -750,7 +817,34 @@ namespace ProfileGenerator
                 arrangeDef = new StaggerArrange(horizontalGap, verticalGap, arrangeUnit, rows, cols, offset, isRowOrColoffset, isOddOrEven);
 
             }
-            return arrangeDef;
+            else if (arrangeBox.SelectedItem?.ToString() == "Voronoi")
+            {
+                string arrangeUnit = arrangeUnitBox.Text ?? "";
+                double gap = 0;
+                int seed = 0;
+                int targetcount = 0;
+                foreach (System.Windows.Forms.Control control in arrangePanel.Controls)
+                {
+                    if (control is System.Windows.Forms.TextBox tb)
+                    {
+                        switch (tb.Name)
+                        {
+                            case "targetCount":
+                                int.TryParse(tb.Text, out targetcount);
+                                break;
+                            case "seed":
+                                int.TryParse(tb.Text, out seed);
+                                break;
+                            case "gap":
+                                double.TryParse(tb.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out gap);
+                                break;
+                            
+                        }
+                    }
+                }
+                arrangeDef = new VoronoiArrange(targetcount, gap, seed, arrangeUnit);
+            }
+                return arrangeDef;
         }
     }
 

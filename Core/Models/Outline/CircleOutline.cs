@@ -8,6 +8,7 @@ namespace ProfileGenerator.Core.Models.Outline
     {
         public CircleOutline(double radius, string unit) : base(radius, unit)
         {
+            ShapeName = "CircleOutline";
         }
         public override Autodesk.Revit.DB.CurveLoop Generate(Autodesk.Revit.DB.XYZ center)
         {

@@ -60,6 +60,7 @@
             this.filePathBox = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.wallPage = new System.Windows.Forms.TabPage();
+            this.WallExportButton = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.outlinePage.SuspendLayout();
@@ -127,6 +128,7 @@
             this.outlineTypeBox.FormattingEnabled = true;
             this.outlineTypeBox.Items.AddRange(new object[] {
             "不指定",
+            "点选墙",
             "矩形",
             "圆形"});
             this.outlineTypeBox.Location = new System.Drawing.Point(196, 63);
@@ -366,7 +368,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(82, 303);
+            this.button2.Location = new System.Drawing.Point(79, 335);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(163, 68);
             this.button2.TabIndex = 5;
@@ -419,6 +421,7 @@
             // 
             // wallPage
             // 
+            this.wallPage.Controls.Add(this.WallExportButton);
             this.wallPage.Controls.Add(this.label11);
             this.wallPage.Location = new System.Drawing.Point(4, 28);
             this.wallPage.Name = "wallPage";
@@ -427,15 +430,24 @@
             this.wallPage.Text = "应用到墙体";
             this.wallPage.UseVisualStyleBackColor = true;
             // 
+            // WallExportButton
+            // 
+            this.WallExportButton.Location = new System.Drawing.Point(591, 366);
+            this.WallExportButton.Name = "WallExportButton";
+            this.WallExportButton.Size = new System.Drawing.Size(170, 61);
+            this.WallExportButton.TabIndex = 1;
+            this.WallExportButton.Text = "应用到墙面";
+            this.WallExportButton.UseVisualStyleBackColor = true;
+            this.WallExportButton.Click += new System.EventHandler(this.WallExportButton_Click);
+            // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(101, 113);
+            this.label11.Location = new System.Drawing.Point(179, 150);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(611, 72);
+            this.label11.Size = new System.Drawing.Size(404, 90);
             this.label11.TabIndex = 0;
-            this.label11.Text = "墙体开洞需要轮廓，而且你现有的核心代码几乎可以直接复用。\r\n\r\n墙体开洞的API：使用 CurveArray（但包含 CurveLoop）\r\nRevit API " +
-    "中创建墙体开洞的核心方法是 FamilyItemFactory.NewOpening：\r\n";
+            this.label11.Text = "使用此功能，自动获取选中墙的轮廓，并居中开洞\r\n外部环设置“点选墙”即可\r\n\r\n使用前先选中一面墙\r\n\r\n";
             // 
             // MainForm
             // 
@@ -496,5 +508,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TabPage wallPage;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button WallExportButton;
     }
 }

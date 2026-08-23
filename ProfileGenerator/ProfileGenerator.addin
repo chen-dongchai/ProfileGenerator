@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+        <AddIn Type="Command">
+                <Assembly>C:\ProgramData\Autodesk\Revit\Addins\2022\ProfileGenerator.dll</Assembly>
+                <AddInId>19C9CC4B-5960-4285-BEBA-3B010C6FB0A4</AddInId>
+                <FullClassName>ProfileGenerator.Core.RevitCommand</FullClassName>
+                <Text>ProfileGenerator</Text> 
+                <VendorId>NAME</VendorId>
+                <VendorDescription>Your Company Information</VendorDescription> 
+        </AddIn>
+</RevitAddIns>

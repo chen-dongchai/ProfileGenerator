@@ -107,6 +107,7 @@
     <Compile Include="Core\Models\Defination\StarDefinition.cs" />
     <Compile Include="Core\Models\Outline\CircleOutline.cs" />
     <Compile Include="Core\Models\Outline\RectangleOutline.cs" />
+    <Compile Include="Core\Models\Outline\WallOutline.cs" />
     <Compile Include="Core\Models\Pattern\CirclePattern.cs" />
     <Compile Include="Core\Models\Pattern\DiamondPattern.cs" />
     <Compile Include="Core\Models\Pattern\RectanglePattern.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Core\RevitCommand.cs" />
     <Compile Include="Export\DWG2DExporter.cs" />
     <Compile Include="Export\RFA3DExporter.cs" />
+    <Compile Include="Export\WallExporter.cs" />
     <Compile Include="Form2.cs">
       <SubType>Form</SubType>
     </Compile>

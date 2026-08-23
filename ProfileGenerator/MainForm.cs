@@ -1,5 +1,8 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
+using NetTopologySuite.Algorithm;
+using NetTopologySuite.Operation.Distance;
 using ProfileGenerator.Core.Arrangement;
 using ProfileGenerator.Core.Assembler;
 using ProfileGenerator.Core.Models.Arrangement;
@@ -11,7 +14,9 @@ using ProfileGenerator.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Media.Media3D;
 
 namespace ProfileGenerator
 {
@@ -22,6 +27,11 @@ namespace ProfileGenerator
 
         private RFA3DExporter _RFA3DExporter;
         private ExternalEvent _RFA3DEvent;
+
+        private WallExporter _WallExporter;
+        private ExternalEvent _WallEvent;
+
+        private UIDocument _uIDocument;
         public MainForm()
         {
             InitializeComponent();
@@ -34,6 +44,10 @@ namespace ProfileGenerator
 
         }
 
+        public void GetActiveUIDocument(UIDocument uidocument)
+        {
+            this._uIDocument = uidocument;
+        }
         private void arrangeBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             string selectedOption = arrangeBox.SelectedItem.ToString();
@@ -258,6 +272,109 @@ namespace ProfileGenerator
                 outlinePanel.BringToFront();
                 outlinePanel.Show();
             }
+            else if(selectedOption == "点选墙")
+            {
+                //生成一个按钮，指引用户点选墙，然后根据点选的墙，获取数据，（使按钮隐藏），生成TextBox存储数据
+                //数据为矩形外部环数据，圆角半径默认为零，需要宽度，高度，还需要选取的ID，用于定位到它并生成空洞
+                //需要一个新的类型用于储存，或者在原本的矩形类中增加重载
+                outlinePanel.Controls.Clear();
+                Button wallbutton = new Button();
+                wallbutton.Text = "选择";
+                wallbutton.Size = new System.Drawing.Size(50, 100);
+                wallbutton.Location = new System.Drawing.Point(50, 50);
+                wallbutton.Click += Wallbutton_Click;
+                outlinePanel.Controls.Add(wallbutton);
+                outlinePanel.BringToFront();
+                outlinePanel.Show();
+            }
+        }
+
+        private void Wallbutton_Click(object sender, EventArgs e)
+        {
+            // 1. 确保 UIDocument 已初始化
+            if (_uIDocument == null)
+            {
+                MessageBox.Show("UIDocument 未初始化，请重新启动插件。");
+                return;
+            }
+
+            Document doc = _uIDocument.Document;
+            Reference reference = null;
+
+            // 2. 安全选择墙（处理用户取消）
+            try
+            {
+                reference = _uIDocument.Selection.PickObject(ObjectType.Element, "请选择一面墙");
+            }
+            catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+            {
+                return; // 用户按 ESC 取消
+            }
+
+            if (reference == null) return;
+
+            // 3. 获取并验证为墙
+            Element element = doc.GetElement(reference);
+            Wall wall = element as Wall;
+            if (wall == null)
+            {
+                MessageBox.Show("选择的不是墙，请重新选择。");
+                return;
+            }
+
+            // =====================================================
+            // 4. 获取实际几何长度（使用 LocationCurve）
+            // =====================================================
+            double lengthFt = 0;
+            LocationCurve locationCurve = wall.Location as LocationCurve;
+            if (locationCurve != null)
+            {
+                lengthFt = locationCurve.Curve.Length; // 内部单位：英尺
+            }
+
+            // =====================================================
+            // 5. 获取实际几何高度（使用 BoundingBox）
+            // =====================================================
+            double heightFt = 0;
+            BoundingBoxXYZ bbox = wall.get_BoundingBox(null);
+            if (bbox != null)
+            {
+                heightFt = bbox.Max.Z - bbox.Min.Z; // 内部单位：英尺
+            }
+            else
+            {
+                // 如果无法获取包围盒，可尝试通过 Solid 计算（备选）
+                // 但通常情况下 get_BoundingBox 都能成功
+                MessageBox.Show("无法获取墙的包围盒，高度可能不准确。");
+            }
+
+            // =====================================================
+            // 6. 显示信息（完全保持您原来的 Label 样式）
+            // =====================================================
+            string heightlabeltop = "高度(ft):";
+            string lengthlabeltop = "长度(ft):";
+            string idlabeltop = "ID:";
+
+            Label heightlabel = new Label();
+            heightlabel.Text = heightlabeltop + heightFt.ToString("F3"); // 保留三位小数，清晰
+            heightlabel.Location = new System.Drawing.Point(150, 50);
+            heightlabel.AutoSize = true;
+            Label lengthlabel = new Label();
+            lengthlabel.Text = lengthlabeltop + lengthFt.ToString("F3");
+            lengthlabel.Location = new System.Drawing.Point(150, 100);
+            lengthlabel.AutoSize = true;
+            Label idlabel = new Label();
+            idlabel.Text = idlabeltop + wall.Id.IntegerValue.ToString();
+            idlabel.Location = new System.Drawing.Point(150, 150);
+            idlabel.AutoSize = true;
+            // 清空旧控件，避免重复添加
+            outlinePanel.Controls.Remove(heightlabel);
+            outlinePage.Controls.Remove(lengthlabel);
+            outlinePage.Controls.Remove(idlabel);
+
+            outlinePanel.Controls.Add(heightlabel);
+            outlinePanel.Controls.Add(lengthlabel);
+            outlinePanel.Controls.Add(idlabel);
         }
 
         private void patternTypeBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -392,12 +509,14 @@ namespace ProfileGenerator
 
             }
         }
-        public void GetHandler(DWG2DExporter dWGExporter, ExternalEvent externalEvent, RFA3DExporter rFA3DExporter, ExternalEvent rFa3DEvent)
+        public void GetHandler(DWG2DExporter dWGExporter, ExternalEvent externalEvent, RFA3DExporter rFA3DExporter, ExternalEvent rFa3DEvent,WallExporter wallExporter,ExternalEvent wallEvent)
         {
             _DWG2DExporter = dWGExporter;
             _DWG2DEvent = externalEvent;
             _RFA3DExporter = rFA3DExporter;
             _RFA3DEvent = rFa3DEvent;
+            _WallEvent = wallEvent;
+            _WallExporter = wallExporter;
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -560,7 +679,34 @@ namespace ProfileGenerator
                 }
                 shapeDef = new Core.Models.Outline.CircleOutline(radius, outlineUnit);
             }
-            else if(outlineTypeBox.SelectedItem?.ToString() == "不指定")
+            else if(outlineTypeBox.SelectedItem?.ToString() == "点选墙")
+            {
+                //墙是矩形的，所以本质还是一个矩形的外部环数据
+                double length = 0;
+                double height = 0;
+                ElementId elementId = null;
+                foreach(System.Windows.Forms.Control control in outlinePanel.Controls)
+                {
+                    if(control is System.Windows.Forms.Label lb)
+                    {
+                        string[] strings = lb.Text.Split(':');
+                        if (strings[0] == "高度(ft)")
+                        {
+                            height = double.Parse(strings[1]);
+                        }
+                        else if (strings[0] == "长度(ft)")
+                        {
+                            length = double.Parse(strings[1]);
+                        }
+                        else if ((strings[0] == "ID"))
+                        {
+                            elementId = new ElementId(int.Parse(strings[1])); 
+                        }
+                    }
+                }
+                shapeDef = new WallOutline(length, height, elementId);
+            }
+            else if (outlineTypeBox.SelectedItem?.ToString() == "不指定")
             {
                 shapeDef = null;
             }
@@ -845,6 +991,30 @@ namespace ProfileGenerator
                 arrangeDef = new VoronoiArrange(targetcount, gap, seed, arrangeUnit);
             }
                 return arrangeDef;
+        }
+
+        private void WallExportButton_Click(object sender, EventArgs e)
+        {
+            //收集所需参数，传递给IExternalEventHandler接口，调用接口方法生成
+            CurveArrArray curveArrArray = new CurveArrArray();
+            string Unuse = "";
+            (curveArrArray, Unuse) = GetFinalArrayAndPath();
+            ElementId elementid = null;
+            foreach (System.Windows.Forms.Control control in outlinePanel.Controls)
+            {
+                if (control is System.Windows.Forms.Label lb)
+                {
+                    string[] strings = lb.Text.Split(':');
+                    
+                    if ((strings[0] == "ID"))
+                    {
+                        elementid = new ElementId(int.Parse(strings[1]));
+                    }
+                }
+            }
+
+            _WallExporter.GetNeed(curveArrArray,elementid);
+            _WallEvent.Raise();
         }
     }
 

@@ -595,16 +595,20 @@ namespace ProfileGenerator
                 {
                     VoronoiArrange voronoiArrange = arrangeDef as VoronoiArrange;
                     CurveLoop curveLoop = new CurveLoop();
-                    curveLoop = Utils.OffsetWay.OutlineOffset(outlinestorage, voronoiArrange.gapFt);
-                    curveArrArray = VoronoiArrangementEngine.GenerateInnerLoops(curveLoop, voronoiArrange);
+                    curveLoop = Utils.OffsetWay.OutlineOffset(outlinestorage, voronoiArrange.gapFt);//这里的gapft直接采用的内部间距！！！注意是英尺！
+                    //生成的外部环的外边距只有gapft的一半，内部环间距正常
+
+
+                    curveArrArray = VoronoiArrangementEngine.GenerateInnerLoops(curveLoop, voronoiArrange);//这里的curveLoop是外部环缩小后的结果，可能会导致无法生成内部环，返回null
                     CurveLoop originalOutline = new CurveLoop();
                     originalOutline = outlinestorage.Generate(new XYZ(0, 0, 0));
 
                     curveArrArray.Insert(Utils.LoopToArray.ConvertToCurveArray(originalOutline), 0);
-
-
-
-
+                    //curveArrArray本身为null（触发条件-点选墙，试图输出到墙实例，，，疑问，当点选墙但导出时，偶尔可以正常导出没有内部环的文件
+                    //所以这里的null是因为VoronoiArrangementEngine.GenerateInnerLoops返回了null，原因是外部环被缩小后，无法生成内部环？？？？？
+                    //需要查看外部环的缩小逻辑，是否存在bug，疑似是间距问题
+                    //主要问题，点选墙导出 和 指定外部换导出，VoronoiArrangementEngine.GenerateInnerLoops返回的curveArrArray不一样，前者为null，后者正常------疑似单位问题，点选墙的单位是英尺，指定外部环的单位是毫米，导致缩小后的外部环不同，导致无法生成内部环
+                    //大部分时候点选墙无法导出也无法应用到墙实例上，原因是VoronoiArrangementEngine.GenerateInnerLoops返回了null，导致curveArrArray为null，无法应用到墙实例上
                 }
                 return (curveArrArray, filePathBox.Text);   //别忘记此处确实异常处理
             }

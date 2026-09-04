@@ -20,6 +20,7 @@ namespace ProfileGenerator.Core.Models.Outline
             this.lengthFt = length;
             this.heightFt = height;
             this.elementId = elementId;
+            ShapeName = "WallOutline";
         }
         public override CurveLoop Generate(XYZ xYZ)
         {
